@@ -14,9 +14,9 @@ client = OpenAI(
 
 def getGptResponse(card: str, situation: str) -> AiResponse:
     prompt = (
-        f"The tarot card is {card}, and the situation is {situation}. "
-        "Reply in JSON with fields 'emotion' (use only HUMAINE's EARL 48 emotions to determine user's emotion) and 'answer' (plain paragraph). "
-        "Interpret the card in the context of situation. Solely on card visual symbolism and meaning, suggest improvements."
+        f"The tarot card is {card} and the situation is {situation}. "
+        "Reply in JSON with 'emotion' (choose solely from HUMAINE's EARL 48 emotions) and 'answer' (a plain paragraph). "
+        "Interpret the card's symbolism in this situation and suggest improvements."
     )
 
     response = client.responses.create(
