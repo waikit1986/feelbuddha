@@ -19,9 +19,21 @@ def getGptResponse(card: str, situation: str) -> AiResponse:
         "Interpret the card's symbolism in this context and suggest improvements."
     )
 
+    # response = client.responses.create(
+    # model="gpt-4.1",
+    # input=prompt,
+    # )
+    
     response = client.responses.create(
-    model="gpt-4.1",
-    input=prompt,
+    model="o4-mini",
+    reasoning={"effort": "medium"},
+    input=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        max_output_tokens=1000,
     )
 
     raw_output = response.output_text
