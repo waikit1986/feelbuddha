@@ -14,5 +14,5 @@ router = APIRouter(
 )
 
 @router.post('', response_model=AiResponse)
-def submit_answer(payload: AiRequest, db: Session = Depends(get_db), current_user: UserBase = Depends(get_current_user)):
-    return functions_ai.getDeepSeekResponse(payload.card, payload.situation ,current_user=current_user, db=db)
+async def submit_answer(payload: AiRequest, db: Session = Depends(get_db), current_user: UserBase = Depends(get_current_user)):
+    return await functions_ai.getDeepSeekResponse(payload.card, payload.situation ,current_user=current_user, db=db) 

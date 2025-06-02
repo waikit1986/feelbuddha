@@ -1,7 +1,8 @@
 import json
 from fastapi import Depends
 from sqlalchemy.orm.session import Session
-from openai import OpenAI
+from openai import AsyncOpenAI
+# from openai import OpenAI
 
 import os
 from dotenv import load_dotenv
@@ -13,7 +14,7 @@ from user.functions_user import get_user_by_username
 
 load_dotenv()
 
-client = OpenAI(
+client = AsyncOpenAI(
     api_key=os.environ.get("DEEPSEEK_API_KEY"),
     base_url="https://api.deepseek.com"
 )
