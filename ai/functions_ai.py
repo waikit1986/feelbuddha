@@ -13,7 +13,6 @@ client = OpenAI(
     base_url="https://api.deepseek.com"
 )
 
-
 EMOTIONS = {
     "Negative and forceful": ["Anger", "Annoyance", "Contempt", "Disgust", "Irritation"],
     "Negative and not in control": ["Anxiety", "Embarrassment", "Fear", "Helplessness", "Powerlessness", "Worry"],
