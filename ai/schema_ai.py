@@ -8,6 +8,5 @@ class AiRequest(BaseModel):
 class AiResponse(BaseModel):
   emotion: str
   answer: str
-  tokens: int
   class Config():
     from_attributes = True

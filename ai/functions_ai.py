@@ -1,9 +1,14 @@
 import json
+from fastapi import Depends
+from sqlalchemy.orm.session import Session
 from openai import OpenAI
 
 import os
 from dotenv import load_dotenv
 from .schema_ai import AiResponse
+from .models_ai import Reading
+from user.models_user import User
+from user.functions_user import get_user_by_username
 
 
 load_dotenv()
@@ -25,7 +30,21 @@ EMOTIONS = {
     "Reactive": ["Interest", "Politeness", "Surprise"]
 }
 
-def getDeepSeekResponse(card: str, situation: str):
+def saveReading(card: str, situation: str, response: AiResponse, total_tokens: int,user: User, db: Session):
+    reading = Reading(
+        card=card,
+        situation=situation,
+        emotion=response.emotion,
+        answer=response.answer,
+        total_tokens=total_tokens,
+        user_id=user.id,
+        username=user.username,
+    )
+    db.add(reading)
+    db.commit()
+    db.refresh(reading)
+
+async def getDeepSeekResponse(card: str, situation: str, current_user: User, db: Session):
     all_emotions = [emotion for sublist in EMOTIONS.values() for emotion in sublist]
     emotion_str = ", ".join(all_emotions)
         
@@ -37,7 +56,7 @@ def getDeepSeekResponse(card: str, situation: str):
     
     print(prompt)
 
-    response = client.chat.completions.create(
+    response = await client.chat.completions.create(
         model="deepseek-chat",
         messages=[
             {"role": "user", "content": prompt}
@@ -50,7 +69,10 @@ def getDeepSeekResponse(card: str, situation: str):
     
     raw_output = response.choices[0].message.content
     parsed_output = json.loads(raw_output)
-    
+
+    user = get_user_by_username(db, current_user.username)
+    saveReading(card, situation, AiResponse(**parsed_output), response.usage.total_tokens, user, db)
+
     # print(parsed_output)
     # print(response.usage.prompt_tokens)
     # print(response.usage.completion_tokens)
@@ -59,5 +81,5 @@ def getDeepSeekResponse(card: str, situation: str):
     return AiResponse(
         emotion=parsed_output["emotion"],
         answer=parsed_output["answer"],
-        tokens=response.usage.total_tokens
     )
+    
