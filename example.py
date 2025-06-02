@@ -1,77 +1,8 @@
-from openai import OpenAI
-import json
-
-import os
-from dotenv import load_dotenv
-from ai.schema_ai import AiResponse
-
-
-load_dotenv()
-
-client = OpenAI(
-    api_key=os.environ.get("OPENAI_API_KEY"),
-)
-
-def getGptResponse(card: str, situation: str) -> AiResponse:
-    prompt = (
-        f"The tarot card is {card}, and the situation is {situation}. "
-        "Reply in JSON with fields 'emotion' (use only EARL label to determine user's emotion) and 'answer' (plain paragraph). "
-        "Interpret the card in the context of situation. Solely on card visual symbolism and meaning, suggest improvements."
-    )
-
-    response = client.responses.create(
-    model="gpt-4.1",
-    input=prompt,
-    )
-
-    print(response.output_text)
-    
-getGptResponse("The Fool", "I am starting a new job and feeling anxious about it.")
-
-# import os
-# from dotenv import load_dotenv
-# from openai import OpenAI
-# from pydantic import BaseModel
-# import json
-
-# load_dotenv()
-
-# client = OpenAI(
-#     api_key=os.environ.get("OPENAI_API_KEY"),
-# )
-
-# class TarotResponse(BaseModel):
-#     emotion: str
-#     answer: str
-
-# card="two of wands"
-# situation="I think my bf cheat on me"
-# prompt = f"The tarot card is {card}, and the situation is {situation}. Reply in JSON with fields 'emotion' (use only EARL label to determine user's emotion) and 'answer' (plain paragraph). Interpret the card in the context of situation. Based on card visual symbolism and meaning, suggest mental improvements."
-
-# response = client.responses.create(
-#     model="o4-mini",
-#     reasoning={"effort": "medium"},
-#     input=[
-#         {
-#             "role": "user",
-#             "content": prompt
-#         }
-#     ]
-# )
-
-# raw_json_str = response.output[1].content[0].text
-# data = json.loads(raw_json_str)
-
-# print(data["emotion"])
-# print(data["answer"])
-# print(response.usage)
-
-
 # import json
 # from openai import OpenAI
 
 # client = OpenAI(
-#     api_key="sk-d17b9c864d5142078040a4469e296b46",
+#     api_key=os.environ.get("DEEPSEEK_API_KEY"),
 #     base_url="https://api.deepseek.com"
 # )
 
@@ -112,3 +43,102 @@ getGptResponse("The Fool", "I am starting a new job and feeling anxious about it
 #     }
 
 # getDeepSeekResponse("two of wands", "I think my bf cheat on me")
+
+from openai import OpenAI
+import json
+
+import os
+from dotenv import load_dotenv
+from .schema_ai import AiResponse
+
+
+load_dotenv()
+
+client = OpenAI(
+    api_key=os.environ.get("OPENAI_API_KEY"),
+)
+
+EARL_48 = [
+    "admiration",
+    "adoration",
+    "aesthetic appreciation",
+    "amusement",
+    "anger",
+    "anxiety",
+    "awe",
+    "awkwardness",
+    "boredom",
+    "calmness",
+    "confusion",
+    "craving",
+    "disgust",
+    "empathetic pain",
+    "entrancement",
+    "envy",
+    "excitement",
+    "fear",
+    "gratitude",
+    "guilt",
+    "horror",
+    "interest",
+    "joy",
+    "love",
+    "nostalgia",
+    "pride",
+    "realization",
+    "relief",
+    "remorse",
+    "romantic love",
+    "sadness",
+    "satisfaction",
+    "sexual desire",
+    "surprise (positive)",
+    "surprise (negative)",
+    "sympathy",
+    "tiredness",
+    "triumph",
+    "awkward amusement",
+    "confident amusement",
+    "compassionate sympathy",
+    "disappointed relief",
+    "fearful horror",
+    "loving admiration",
+    "proud joy",
+    "relieved surprise",
+    "sad nostalgia",
+    "suspicious anxiety"
+]
+
+def getGptResponse(card: str, situation: str) -> AiResponse:
+    emotions_str = ", ".join(f'"{e}"' for e in EARL_48)
+    prompt = (
+        f"The tarot card is {card} and the situation is {situation}. "
+        f"Reply in JSON with 'emotion' (choose exactly one from this list only: {emotions_str}) and 'answer' (a plain paragraph). "
+        "Interpret the card's symbolism in this context and suggest improvements."
+    )
+
+    response = client.responses.create(
+    model="gpt-4.1",
+    input=prompt,
+    )
+    
+    # response = client.responses.create(
+    # model="o4-mini",
+    # reasoning={"effort": "medium"},
+    # input=[
+    #         {
+    #             "role": "user",
+    #             "content": prompt
+    #         }
+    #     ],
+    #     max_output_tokens=1000,
+    # )
+
+    raw_output = response.output_text
+    parsed_output = json.loads(raw_output)
+
+    return AiResponse(
+        emotion=parsed_output["emotion"],
+        answer=parsed_output["answer"],
+        tokens=response.usage.total_tokens
+    )
