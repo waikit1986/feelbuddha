@@ -50,8 +50,8 @@ async def getDeepSeekResponse(card: str, situation: str, current_user: User, db:
     emotion_str = ", ".join(all_emotions)
         
     prompt = (
-        f"The tarot card is {card} and the situation is {situation}. "
-        f"Reply in JSON with 'emotion' (choose one from {emotion_str} only) and 'answer' (a plain paragraph)."
+        f"The tarot card is {card} and the user input is: {situation}. "
+        f"Reply in JSON with 'emotion' (strictly based on user input, determine user current emotion from the list: {emotion_str}), and 'answer' based on card (a plain paragraph)."
         "Interpret the card's symbolism in this context and suggest improvements."
     )
     
