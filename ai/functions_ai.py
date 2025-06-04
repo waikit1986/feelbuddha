@@ -7,7 +7,7 @@ from openai import AsyncOpenAI
 import os
 from dotenv import load_dotenv
 from .schema_ai import AiResponse
-from .models_ai import Reading
+from reading.models_reading import Reading
 from user.models_user import User
 from user.functions_user import get_user_by_username
 
