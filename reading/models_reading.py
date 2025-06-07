@@ -1,5 +1,5 @@
 from db.database import Base
-from sqlalchemy import UUID, Column, ForeignKey, String, Integer
+from sqlalchemy import UUID, Column, DateTime, ForeignKey, String, Integer, func
 from sqlalchemy.orm import relationship
 import uuid
 
@@ -13,6 +13,7 @@ class Reading(Base):
     __tablename__ = "readings"
 
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     card = Column(String, nullable=False)
     situation = Column(String, nullable=False)
     emotion = Column(String, nullable=False)
