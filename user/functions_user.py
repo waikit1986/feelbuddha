@@ -54,8 +54,6 @@ def delete_user(db: Session, username: str):
   if not user:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
       detail='User with username {username} not found')
-    
-  user.deleted_request = func.now()
-  # db.delete(user)
+  db.delete(user)
   db.commit()
   return 'ok'
