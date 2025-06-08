@@ -29,7 +29,7 @@ def update_user(username: str, request: UserBase, db: Session = Depends(get_db),
         )
     return functions_user.update_user(db, username, request)
 
-@router.put('/{username}', response_model=str)
+@router.put('/delete-{username}', response_model=str)
 def delete_user(username: str, db: Session = Depends(get_db), current_user: UserBase = Depends(get_current_user)):
     if username != current_user.username:
         raise HTTPException(
