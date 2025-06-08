@@ -16,9 +16,9 @@ router = APIRouter(
 def create_user(request: UserBase, db: Session = Depends(get_db)):
     return functions_user.create_user(db, request)
 
-@router.get('/{username}', response_model=UsernameDisplay)
-def get_user_by_name(username: str, db: Session = Depends(get_db), current_user: UserBase = Depends(get_current_user)): 
-    return functions_user.get_user_by_username(db, username)
+# @router.get('/{username}', response_model=UsernameDisplay)
+# def get_user_by_name(username: str, db: Session = Depends(get_db), current_user: UserBase = Depends(get_current_user)): 
+#     return functions_user.get_user_by_username(db, username)
 
 @router.put('/{username}', response_model=str)
 def update_user(username: str, request: UserBase, db: Session = Depends(get_db), current_user: UserBase = Depends(get_current_user)):
@@ -29,7 +29,7 @@ def update_user(username: str, request: UserBase, db: Session = Depends(get_db),
         )
     return functions_user.update_user(db, username, request)
 
-@router.delete('/{username}', response_model=str)
+@router.delete('', response_model=str)
 def delete_user(username: str, db: Session = Depends(get_db), current_user: UserBase = Depends(get_current_user)):
     if username != current_user.username:
         raise HTTPException(
