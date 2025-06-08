@@ -42,11 +42,9 @@ def update_user(db: Session, username: str, request: UserBase):
   if not user:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
       detail=f'User with username {username} not found')
-  user.update({
-    User.username: request.username,
-    User.email: request.email,
-    User.password: Hash.bcrypt(request.password)
-  })
+  user.username = request.username
+  user.email = request.email
+  user.password = Hash.bcrypt(request.password)
   db.commit()
   return 'ok'
 
