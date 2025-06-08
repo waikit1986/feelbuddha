@@ -30,11 +30,6 @@ def update_user(username: str, request: UserBase, db: Session = Depends(get_db),
     return functions_user.update_user(db, username, request)
 
 @router.delete('', response_model=str)
-def delete_user(username: str, db: Session = Depends(get_db), current_user: UserBase = Depends(get_current_user)):
-    if username != current_user.username:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You cannot delete another user's account"
-        )
-    return functions_user.delete_user(db, username)
+def delete_user(db: Session = Depends(get_db), current_user: UserBase = Depends(get_current_user)):
+    return functions_user.delete_user(db, current_user.username) 
 
