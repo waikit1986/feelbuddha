@@ -18,5 +18,3 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     username = Column(String, unique=True, index=True, nullable=False)
     password = Column(String, nullable=False)
-    
-    readings = relationship("Reading", back_populates="user", foreign_keys="[Reading.user_id]")

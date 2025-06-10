@@ -21,16 +21,17 @@ class Reading(Base):
     total_tokens = Column(Integer, nullable=False)
     user_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("users.id", ondelete="CASCADE"),
+        ForeignKey("users.id", ondelete="CASCADE", onupdate="CASCADE"),
         nullable=False,
         index=True
     )
     username = Column(
         String,
-        ForeignKey("users.username"),
+        ForeignKey("users.username", onupdate="CASCADE"),
         nullable=False
     )
 
-    user = relationship("User", back_populates="readings", foreign_keys=[user_id])
+    user = relationship("User", foreign_keys=[user_id])
+
 
     

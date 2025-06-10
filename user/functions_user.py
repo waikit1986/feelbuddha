@@ -38,14 +38,14 @@ def get_user_by_username(db: Session, username: str):
       detail=f'User with username {username} not found')
   return user
 
-def update_user(db: Session, username: str, request: UserBase):
-  user = db.query(User).filter(User.username == username).first()
-  if not user:
+def update_user(request_user: UserBase, db: Session, user: UserBase):
+  existing_user = db.query(User).filter(User.username == user.username).first()
+  if not existing_user:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-      detail=f'User with username {username} not found')
-  user.username = request.username
-  user.email = request.email
-  user.password = Hash.bcrypt(request.password)
+      detail=f'User with username {user.username} not found')
+  existing_user.username = request_user.username
+  existing_user.email = request_user.email
+  existing_user.password = Hash.bcrypt(request_user.password)
   db.commit()
   return 'ok'
 

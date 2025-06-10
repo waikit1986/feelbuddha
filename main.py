@@ -25,4 +25,8 @@ app.include_router(ReadingRouter, prefix="/api")
 def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+@app.get("/privacy-policy", response_class=HTMLResponse)
+def privacy_policy(request: Request):
+    return templates.TemplateResponse("privacy_policy.html", {"request": request})
+
 models_user.Base.metadata.create_all(bind=engine)
