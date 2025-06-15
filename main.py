@@ -9,6 +9,7 @@ from user.router_user import router as UserRouter
 from auth.authentication import router as AuthenticationRouter
 from ai.router_ai import router as AiRouter
 from reading.router_reading import router as ReadingRouter
+from wall.router_wall import router as WallRouter
 
 
 app = FastAPI()
@@ -20,6 +21,7 @@ app.include_router(UserRouter, prefix="/api")
 app.include_router(AuthenticationRouter, prefix="/api")
 app.include_router(AiRouter, prefix="/api")
 app.include_router(ReadingRouter, prefix="/api")
+app.include_router(WallRouter, prefix="/api")
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
