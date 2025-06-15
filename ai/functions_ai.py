@@ -31,10 +31,10 @@ EMOTIONS = {
     "Reactive": ["Interest", "Politeness", "Surprise"]
 }
 
-def saveReading(card: str, situation: str, response: AiResponse, total_tokens: int,user: User, db: Session):
+def saveReading(card: str, input_text: str, response: AiResponse, total_tokens: int,user: User, db: Session):
     reading = Reading(
         card=card,
-        situation=situation,
+        input_text=input_text,
         emotion=response.emotion,
         answer=response.answer,
         total_tokens=total_tokens,
@@ -45,12 +45,12 @@ def saveReading(card: str, situation: str, response: AiResponse, total_tokens: i
     db.commit()
     db.refresh(reading)
 
-async def getDeepSeekResponse(card: str, situation: str, current_user: User, db: Session):
+async def getDeepSeekResponse(card: str, input_text: str, current_user: User, db: Session):
     all_emotions = [emotion for sublist in EMOTIONS.values() for emotion in sublist]
     emotion_str = ", ".join(all_emotions)
         
     prompt = (
-        f"The tarot card is {card} and the user input is: {situation}. "
+        f"The tarot card is {card} and the user input is: {input_text}. "
         f"Reply in JSON with 'emotion' (strictly based on user input, determine user current emotion from the list: {emotion_str}), and 'answer' based on card (a plain paragraph)."
         "Interpret the card's symbolism in this context and suggest improvements."
     )
@@ -72,7 +72,7 @@ async def getDeepSeekResponse(card: str, situation: str, current_user: User, db:
     parsed_output = json.loads(raw_output)
 
     user = get_user_by_username(db, current_user.username)
-    saveReading(card, situation, AiResponse(**parsed_output), response.usage.total_tokens, user, db)
+    saveReading(card, input_text, AiResponse(**parsed_output), response.usage.total_tokens, user, db)
 
     # print(parsed_output)
     # print(response.usage.prompt_tokens)
