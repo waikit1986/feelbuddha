@@ -84,3 +84,37 @@ async def getDeepSeekResponse(card: str, input_text: str, current_user: User, db
         answer=parsed_output["answer"],
     )
     
+async def getDailyDeepSeekResponse(card: str, input_text: str, current_user: User, db: Session):   
+    prompt = (
+        f"The tarot card is {card} and this is tarot daily reading."
+        f"Reply in JSON with 'emotion' as empty string, and 'answer' as the interpretation of the card's symbolism as daily reading and suggest improvements."
+    )
+    
+    print(prompt)
+
+    response = await client.chat.completions.create(
+        model="deepseek-chat",
+        messages=[
+            {"role": "user", "content": prompt}
+        ],
+        response_format={"type": "json_object"},
+        max_tokens=1024,
+        temperature=1.7,
+        stream=False
+    )
+    
+    raw_output = response.choices[0].message.content
+    parsed_output = json.loads(raw_output)
+
+    user = get_user_by_username(db, current_user.username)
+    saveReading(card, input_text, AiResponse(**parsed_output), response.usage.total_tokens, user, db)
+
+    # print(parsed_output)
+    # print(response.usage.prompt_tokens)
+    # print(response.usage.completion_tokens)
+    # print(response.usage.total_tokens)
+
+    return AiResponse(
+        emotion=parsed_output["emotion"],
+        answer=parsed_output["answer"],
+    )
