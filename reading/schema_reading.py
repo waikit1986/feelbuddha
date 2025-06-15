@@ -7,7 +7,7 @@ class ReadingResponse(BaseModel):
     id: UUID
     created_at: datetime
     card: str
-    situation: str
+    input_text: str
     emotion: str
     answer: str
 

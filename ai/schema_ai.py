@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 class AiRequest(BaseModel):
   card: str
-  situation: str
+  input_text: str
 
 class AiResponse(BaseModel):
   emotion: str
