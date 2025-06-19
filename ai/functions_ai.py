@@ -19,42 +19,27 @@ client = AsyncOpenAI(
     base_url="https://api.deepseek.com"
 )
 
-EMOTIONS = {
-    "Negative and forceful": ["Anger", "Annoyance", "Contempt", "Disgust", "Irritation"],
-    "Negative and not in control": ["Anxiety", "Embarrassment", "Fear", "Helplessness", "Powerlessness", "Worry"],
-    "Negative thoughts": ["Doubt", "Envy", "Frustration", "Guilt", "Shame"],
-    "Negative and passive": ["Boredom", "Despair", "Disappointment", "Hurt", "Sadness", "Agitation", "Stress", "Shock", "Tension"],
-    "Positive and lively": ["Amusement", "Delight", "Elation", "Excitement", "Happiness", "Joy", "Pleasure"],
-    "Caring": ["Affection", "Empathy", "Friendliness", "Love"],
-    "Positive thoughts": ["Pride", "Courage", "Hope", "Humility", "Satisfaction", "Trust"],
-    "Quiet positive": ["Calmness", "Contentment", "Relaxation", "Relief", "Serenity"],
-    "Reactive": ["Interest", "Politeness", "Surprise"]
-}
+async def getDeepSeekResponse(tradition: str, input_text: str, current_user: User, db: Session):
 
-def saveReading(card: str, input_text: str, response: AiResponse, total_tokens: int,user: User, db: Session):
-    reading = Reading(
-        card=card,
-        input_text=input_text,
-        emotion=response.emotion,
-        answer=response.answer,
-        total_tokens=total_tokens,
-        user_id=user.id,
-        username=user.username,
-    )
-    db.add(reading)
-    db.commit()
-    db.refresh(reading)
-
-async def getDeepSeekResponse(card: str, input_text: str, current_user: User, db: Session):
-    all_emotions = [emotion for sublist in EMOTIONS.values() for emotion in sublist]
-    emotion_str = ", ".join(all_emotions)
-        
     prompt = (
-        f"The tarot card is {card} and the user input is: {input_text}. "
-        f"Reply in JSON with 'emotion' (strictly based on user input, determine user current emotion from the list: {emotion_str}), and 'answer' based on card (a plain paragraph)."
-        "Interpret the card's symbolism in this context and suggest improvements."
+        f"I'm feeling {input_text}. Guide me with wisdom from the {tradition} Buddhist tradition—help me understand this emotion and transform it with compassion and insight. "  
+        f"Select a sutra or teaching that *directly* speaks to my current state, not just generally. "  
+        f"Find a passage that feels like it was written for this moment, and tell me: "  
+        f"1. The **exact sutra name** and a **powerful, resonant excerpt** (cite a reliable source). "  
+        f"2. A **Buddhist saint, arhat, or bodhisattva** whose life story or vows mirror my struggle or offer inspiration. "  
+        f"3. A **deep, personal explanation** of how this teaching applies—not just a generic interpretation, but how it speaks to *this specific emotion*. "  
+        f"4. **Practical advice**—a small but meaningful daily practice (e.g., a mantra, reflection, or meditation) to work with this feeling. "  
+        f"Respond in **JSON format** with these keys: "  
+        f"'sutra_name' (be precise), "  
+        f"'sutra_excerpt' (include the exact words and source), "  
+        f"'saint' (name and why they’re relevant), "  
+        f"'explanation' (detailed, empathetic, and tailored to my emotion), "  
+        f"'advice' (something actionable, even for beginners). "  
+        f"Structure it like this: "  
+        f"{{'sutra_name': '', 'sutra_excerpt': '', 'saint': '', 'explanation': '', 'advice': ''}}. "  
+        f"**Important**: Make it feel personal—like the Buddha or a great teacher is speaking directly to me."  
     )
-    
+
     print(prompt)
 
     response = await client.chat.completions.create(
@@ -70,51 +55,15 @@ async def getDeepSeekResponse(card: str, input_text: str, current_user: User, db
     
     raw_output = response.choices[0].message.content
     parsed_output = json.loads(raw_output)
+    print(parsed_output)
 
     user = get_user_by_username(db, current_user.username)
-    saveReading(card, input_text, AiResponse(**parsed_output), response.usage.total_tokens, user, db)
-
-    # print(parsed_output)
-    # print(response.usage.prompt_tokens)
-    # print(response.usage.completion_tokens)
-    # print(response.usage.total_tokens)
 
     return AiResponse(
-        emotion=parsed_output["emotion"],
-        answer=parsed_output["answer"],
+        sutra_name=parsed_output["sutra_name"],
+        sutra_excerpt=parsed_output["sutra_excerpt"],
+        explanation=parsed_output["explanation"],
+        saint=parsed_output["saint"],
+        advice=parsed_output["advice"],
     )
-    
-async def getDailyDeepSeekResponse(card: str, input_text: str, current_user: User, db: Session):   
-    prompt = (
-        f"The tarot card is {card} and this is tarot daily reading."
-        f"Reply in JSON with 'emotion' as empty string, and 'answer' as the interpretation of the card's symbolism as daily reading and suggest improvements."
-    )
-    
-    print(prompt)
 
-    response = await client.chat.completions.create(
-        model="deepseek-chat",
-        messages=[
-            {"role": "user", "content": prompt}
-        ],
-        response_format={"type": "json_object"},
-        max_tokens=1024,
-        temperature=1.7,
-        stream=False
-    )
-    
-    raw_output = response.choices[0].message.content
-    parsed_output = json.loads(raw_output)
-
-    user = get_user_by_username(db, current_user.username)
-    saveReading(card, input_text, AiResponse(**parsed_output), response.usage.total_tokens, user, db)
-
-    # print(parsed_output)
-    # print(response.usage.prompt_tokens)
-    # print(response.usage.completion_tokens)
-    # print(response.usage.total_tokens)
-
-    return AiResponse(
-        emotion=parsed_output["emotion"],
-        answer=parsed_output["answer"],
-    )

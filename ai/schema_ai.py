@@ -1,12 +1,25 @@
 from pydantic import BaseModel
 
 
+# class AiRequest(BaseModel):
+#   card: str
+#   input_text: str
+
+# class AiResponse(BaseModel):
+#   emotion: str
+#   answer: str
+#   class Config():
+#     from_attributes = True
+
 class AiRequest(BaseModel):
-  card: str
-  input_text: str
+   tradition: str
+   input_text: str
 
 class AiResponse(BaseModel):
-  emotion: str
-  answer: str
-  class Config():
-    from_attributes = True
+   sutra_name: str
+   sutra_excerpt: str
+   saint: str
+   explanation: str
+   advice: str
+   class Config():
+     from_attributes = True

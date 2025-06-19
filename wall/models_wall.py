@@ -27,6 +27,4 @@ class Wall(Base):
     )
 
     user = relationship("User", foreign_keys=[user_id])
-
-
     

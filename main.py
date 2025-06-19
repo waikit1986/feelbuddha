@@ -10,6 +10,8 @@ from auth.authentication import router as AuthenticationRouter
 from ai.router_ai import router as AiRouter
 from reading.router_reading import router as ReadingRouter
 from wall.router_wall import router as WallRouter
+from report.router_report import router as ReportRouter
+from auth.apple_auth import router as Apple_router
 
 
 app = FastAPI()
@@ -22,6 +24,8 @@ app.include_router(AuthenticationRouter, prefix="/api")
 app.include_router(AiRouter, prefix="/api")
 app.include_router(ReadingRouter, prefix="/api")
 app.include_router(WallRouter, prefix="/api")
+app.include_router(ReportRouter, prefix="/api")
+app.include_router(Apple_router, prefix="/api")
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
