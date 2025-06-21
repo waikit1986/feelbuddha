@@ -40,15 +40,23 @@ def saveReading(tradition: str, input_text: str, response: AiResponse, total_tok
 async def getDeepSeekResponse(tradition: str, input_text: str, current_user: User, db: Session):
 
     prompt = (
-    f"I'm feeling {input_text}. Guide me with precise Buddhist wisdom from the {tradition} tradition to deeply understand and transform this emotion. "
-    f"Carefully select teachings that directly address my specific situation—not general advice. "
-    f"Respond in JSON format with these keys: "
-    f"1. 'sutra_name' – [Search across all Buddhist scriptures to find the most relevant sutra that directly addresses this emotion or situation. Provide the exact name.] "
-    f"2. 'sutra_excerpt' – [A powerful 1-3 sentence passage from this sutra that feels written for this moment. Include translation source.] "
-    f"3. 'saint' – [A Buddhist saint, arhat or bodhisattva whose life story perfectly mirrors this struggle.] "
-    f"4. 'advice' – [in a paragraph and in detail, without the numbering. 1. Explain the sutra meaning. 2. How the sutra applies to me. 3. Tell me the saint story in details. 4. How this story relates to me.] "
-    f"5. 'practice' – [A concrete, beginner-friendly daily practice (mantra, meditation or reflection) designed specifically for working with '{input_text}'.] "
-    f"Tone: Write as if the Buddha or my personal teacher is speaking just to me—warm, compassionate, and profoundly insightful. "
+        f"I'm feeling or having inquiry of {input_text}. Guide me with precise Buddhist wisdom from the {tradition} tradition to deeply understand and transform this. "
+        "Carefully select teachings that directly address my specific situation—not general advice. "
+        "Respond in JSON format with these keys: "
+        "1. 'saint' – [A Buddhist saint, arhat or bodhisattva whose life story perfectly mirrors this struggle or inquiry.] "
+        "2. 'sutra_name' – [Search across all Buddhist scriptures to find the most relevant sutra that directly addresses this emotion or situation. Provide the exact name.] "
+        "3. 'sutra_excerpt' – [A powerful 1-3 sentence passage from this sutra that feels written for this moment. Include translation source.] "
+        "4. 'advice' – [in a paragraph and in detail, without the numbering. 1. Explain the sutra meaning. 2. How the sutra applies to me. 3. Tell me the saint story in details. 4. How this story relates to me.] "
+        "5. 'practice' – [A concrete, beginner-friendly daily practice (mantra, meditation or reflection) designed specifically for working with this emotion.] "
+        "Tone: Write as if the Buddha or my personal teacher is speaking just to me—warm, compassionate, and profoundly insightful. "
+        "\n\n"
+        "Important requirements:\n"
+        "- The saint/bodhisattva must be directly mentioned in the cited sutra\n"
+        "- The sutra excerpt must explicitly address the emotion/situation\n"
+        "- The practice should derive from the sutra or saint's teachings\n"
+        "- Maintain consistent first-person perspective throughout\n"
+        "\n"
+        "Format your response as valid JSON with double quotes."
     )
 
     print(prompt)
