@@ -6,6 +6,8 @@ from uuid import UUID
 class ReadingResponse(BaseModel):
     id: UUID
     created_at: datetime
+    tradition: str
+    input_text: str
     sutra_name: str
     sutra_excerpt: str
     saint: str
