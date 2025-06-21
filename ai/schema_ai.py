@@ -1,3 +1,5 @@
+from datetime import datetime
+from uuid import UUID
 from pydantic import BaseModel
 
 
@@ -19,7 +21,7 @@ class AiResponse(BaseModel):
    sutra_name: str
    sutra_excerpt: str
    saint: str
-   explanation: str
    advice: str
+   practice: str
    class Config():
      from_attributes = True
