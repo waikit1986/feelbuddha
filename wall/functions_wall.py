@@ -36,3 +36,27 @@ def post_wall(
     db.refresh(wall)
 
     return WallDisplay.model_validate(wall)
+
+def delete_wall(
+    db: Session,
+    wall_id: int,
+    current_user: UserBase
+):
+    wall = db.query(Wall).filter(Wall.id == wall_id).first()
+
+    if not wall:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Wall not found"
+        )
+
+    if wall.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to delete this wall"
+        )
+
+    db.delete(wall)
+    db.commit()
+
+    return 'ok'

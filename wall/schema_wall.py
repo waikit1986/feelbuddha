@@ -5,9 +5,6 @@ from uuid import UUID
 
 class WallBase(BaseModel):
     input_text: str
-
-    class Config:
-        from_attributes = True
         
 class WallDisplay(BaseModel):
     id: UUID
@@ -17,3 +14,6 @@ class WallDisplay(BaseModel):
 
     class Config:
         from_attributes = True
+        
+class WallDelete(BaseModel):
+    id: UUID
