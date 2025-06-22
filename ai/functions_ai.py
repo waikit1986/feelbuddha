@@ -40,24 +40,21 @@ def saveReading(tradition: str, input_text: str, response: AiResponse, total_tok
 async def getDeepSeekResponse(tradition: str, input_text: str, current_user: User, db: Session):
 
     prompt = (
-        f"I'm feeling or having inquiry of {input_text}. Guide me with precise Buddhist wisdom from the {tradition} tradition to deeply understand and transform this. "
-        "Carefully select teachings that directly address my specific situation—not general advice. "
-        "Respond in JSON format with these keys: "
-        "1. 'saint' – [A Buddhist saint, arhat or bodhisattva whose life story perfectly mirrors this struggle or inquiry.] "
-        "2. 'sutra_name' – [Search across all Buddhist scriptures to find the most relevant sutra that directly addresses this emotion or situation. Provide the exact name.] "
-        "3. 'sutra_excerpt' – [A powerful 1-3 sentence passage from this sutra that feels written for this moment. Include translation source.] "
-        "4. 'advice' – [in a paragraph and in detail, without the numbering. 1. Explain the sutra meaning. 2. How the sutra applies to me. 3. Tell me the saint story in details. 4. How this story relates to me.] "
-        "5. 'practice' – [A concrete, beginner-friendly daily practice (mantra, meditation or reflection) designed specifically for working with this emotion.] "
-        "Tone: Write as if the Buddha or my personal teacher is speaking just to me—warm, compassionate, and profoundly insightful. "
-        "\n\n"
-        "Important requirements:\n"
-        "- The saint/bodhisattva must be directly mentioned in the cited sutra\n"
-        "- The sutra excerpt must explicitly address the emotion/situation\n"
-        "- The practice should derive from the sutra or saint's teachings\n"
-        "- Maintain consistent first-person perspective throughout\n"
-        "\n"
-        "Format your response as valid JSON with double quotes."
-    )
+    f"I am currently experiencing or exploring: {input_text}. Please guide me with clear, direct wisdom from the {tradition} Buddhist tradition to help me understand and transform this situation. "
+    f"Do not give general spiritual advice—only draw from canonical {tradition} texts that speak specifically to this issue. "
+    "Reply in valid JSON format with the following keys only:\n\n"
+    "1. \"saint\": [A named Buddhist saint, arhat, or bodhisattva from a canonical {tradition} text, whose story relates to this issue.]\n"
+    "2. \"sutra_name\": [Exact name of the sutra, tantra, or text where this figure appears and which addresses the situation. Must be canonical.]\n"
+    "3. \"sutra_excerpt\": [Direct quote from the text related to the issue. Include English translation source if available.]\n"
+    "4. \"advice\": [Explain the quote clearly. Show how it applies to my situation. Then, tell the saint’s story from the text: what happened, what they realized, and how it relates to my struggle. Tone should be warm and wise, like a teacher.]\n"
+    "5. \"practice\": [A beginner-friendly daily {tradition} practice from this saint or sutra—such as a mantra, visualization, or reflection—directly aimed at this issue.]\n\n"
+    "Requirements:\n"
+    "- The saint must be explicitly present in the cited sutra.\n"
+    "- The excerpt must clearly mention the emotion or issue.\n"
+    "- The practice must come from the sutra or saint, not improvised.\n"
+    "- Use first-person tone, as if a teacher or Buddha were speaking to me.\n\n"
+    "Output valid JSON only, with double quotes and no extra text."
+)
 
     print(prompt)
 
@@ -67,7 +64,7 @@ async def getDeepSeekResponse(tradition: str, input_text: str, current_user: Use
             {"role": "user", "content": prompt}
         ],
         response_format={"type": "json_object"},
-        max_tokens=2048,
+        # max_tokens=2048,
         temperature=1.7,
         stream=False
     )
