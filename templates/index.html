@@ -3,89 +3,110 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Feel Buddha</title>
     <meta
       name="description"
-      content="Feel Tarot — A Rider Waite Tarot deck experience to journal your emotions. Discover daily guidance with a classic Tarot card deck."
+      content="AI Buddha is your digital Dharma guide—offering support for daily struggles and insight into Buddhist sutras and teachings."
     />
-    <meta
-      name="keywords"
-      content="Feel Tarot, Tarot app, Rider Waite Tarot Deck, Tarot Deck, Tarot Card Deck, Tarot reading, emotional journaling"
-    />
-    <title>Feel Tarot - Rider Waite Tarot Deck</title>
 
-    <link rel="icon" href="data:image/x-icon;base64," type="image/x-icon" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700;900&family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap"
+      as="style"
+      onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&family=Epilogue:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900"
     />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   </head>
-  <body
-    class="min-h-screen bg-white font-sans text-[#181711]"
-    style='font-family: "Plus Jakarta Sans", "Noto Sans", sans-serif;'
-  >
-    <div class="flex flex-col min-h-screen overflow-hidden">
-      <!-- Header -->
-      <header class="flex items-center justify-between px-4 py-4">
-        <h1 class="text-lg font-bold text-center flex-1 pl-12">Feel Tarot</h1>
-        <button
-          class="w-12 h-12 flex items-center justify-end"
-          aria-label="Help or information"
+  <body>
+    <div
+      class="relative min-h-screen flex flex-col bg-white overflow-x-hidden"
+      style="font-family: Epilogue, 'Noto Sans', sans-serif"
+    >
+      <div class="flex flex-col h-full">
+        <!-- Header -->
+        <header
+          class="flex items-center justify-between border-b border-[#f1f3f3] px-4 py-3 sm:px-10"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24px"
-            height="24px"
-            fill="currentColor"
-            viewBox="0 0 256 256"
-          >
-            <path
-              d="M140,180a12,12,0,1,1-12-12A12,12,0,0,1,140,180ZM128,72c-22.06,0-40,16.15-40,36v4a8,8,0,0,0,16,0v-4c0-11,10.77-20,24-20s24,9,24,20-10.77,20-24,20a8,8,0,0,0-8,8v8a8,8,0,0,0,16,0v-.72c18.24-3.35,32-17.9,32-35.28C168,88.15,150.06,72,128,72Zm104,56A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"
-            />
-          </svg>
-        </button>
-      </header>
-
-      <!-- Main -->
-      <main class="flex flex-col flex-grow items-center text-center px-4">
-        <!-- Hero Image -->
-        <section
-          class="w-full max-w-2xl min-h-[20rem] bg-cover bg-center rounded-xl overflow-hidden mb-6 mx-auto"
-          style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCJWoYfq1pXCfwh_vw2aOAFPd1AhLm8UqRzJMyBHmex-62AouWLQQ5OfMoPzwIRT2mDnSXoDYGbcwa8qPQDH67ZguX_huv8w5WHyKL5Pwj8IEQBcf8o8YIzLPp663FSZvajFcOMvELOjUKYCZFAQMQCOSVI5nqcK9RgPJacnfwJKFLnpuTqbCY32V_h5cp2iT2HyaIDNLp6-5M0sI0Q6bQy3TCm4FoTRsvtv55nc4j82c9B25dkOdXU0zujFXsbNHthhr60qDaa');"
-        ></section>
-
-        <!-- Tagline -->
-        <h2 class="text-[26px] font-bold leading-tight pb-2">
-          Journaling Emotion with Tarot Deck
-        </h2>
-        <p class="text-base font-normal leading-relaxed pb-4 max-w-lg mx-auto">
-          Discover daily insights and guidance tailored just for you. <br>Tap into the Rider Waite Tarot card deck to reflect and grow.
-        </p>
-
-        <!-- CTA -->
-        <a
-          href="#"
-          class="inline-block rounded-full bg-[#f3de24] px-6 py-3 text-base font-bold tracking-wide text-[#181711] shadow-md transition hover:brightness-110"
-        >
-          Download on the App Store
-        </a>
-      </main>
-
-      <!-- Footer with Privacy Policy link -->
-      <footer class="py-4 mt-auto bg-white text-center text-sm text-gray-500">
-        <div class="flex flex-col items-center space-y-1">
-          <div>
-            © 2025 Feel Tarot. <br>Experience the Rider Waite Tarot Deck.
+          <div class="flex items-center gap-3 text-[#131615]">
+            <div class="w-4 h-4">
+              <svg
+                viewBox="0 0 48 48"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M4 42.4379C4 42.4379 14.0962 36.0744 24 41.1692C35.0664 46.8624 44 42.2078 44 42.2078L44 7.01134C44 7.01134 35.068 11.6577 24.0031 5.96913C14.0971 0.876274 4 7.27094 4 7.27094L4 42.4379Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </div>
+            <h2 class="text-lg font-bold tracking-tight">Feel Buddha</h2>
           </div>
-          <a 
-            href="/privacy-policy" 
-            class="text-gray-500 hover:text-gray-700 transition-colors"
-          >
-            Privacy Policy
-          </a>
-        </div>
-      </footer>
+        </header>
+
+        <!-- Hero Section -->
+        <main class="flex-1 flex justify-center px-4 py-6 sm:px-10">
+          <div class="w-full max-w-4xl">
+            <div class="@container">
+              <div class="p-4">
+                <div
+                  class="flex flex-col items-center justify-center gap-6 p-4 min-h-[480px] bg-cover bg-center bg-no-repeat rounded-xl"
+                  style="
+                    background-image: linear-gradient(
+                        rgba(0, 0, 0, 0.1),
+                        rgba(0, 0, 0, 0.4)
+                      ),
+                      url('https://lh3.googleusercontent.com/aida-public/AB6AXuDspETH584N7SGUokgSyJhyX51a7civmSCvKZMYqUP90IEW_igbDY8znUJrYHoc99R43z6YMi9MDpcWQch1hfhxYpKSwMUZ1swa_D_EWDD0WfFHnQiVESOajnn_aYLvHdzTMK5891B9XVnLcWveD_ldlid42eTYAvmuCm6SJCWedr81BFt84nuHNk_LVSl7g7Rw8dz6N1kRI8PCudjDUzYuR98fKp8HMA9eD4IBu4o-Ns50wGsqR8wWs4HAUu0U9_OkJbQN8N3p-ZQ');
+                  "
+                >
+                  <div class="text-center flex flex-col gap-2">
+                    <h1
+                      class="text-4xl sm:text-5xl font-black text-white tracking-tight leading-tight"
+                    >
+                      AI Buddha
+                    </h1>
+                    <h2
+                      class="text-sm sm:text-base font-normal text-white leading-normal max-w-md mx-auto"
+                    >
+                      An AI Buddha, designed to guide users on daily struggles
+                      and provide a better understanding of sutras and Buddhist
+                      teachings.
+                    </h2>
+                  </div>
+                  <a
+                    href="https://apps.apple.com/us/app/buddhism-meditation-timer/id6738318097"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="h-10 sm:h-12 px-4 sm:px-5 min-w-[84px] max-w-[480px] bg-[#9549D9] text-[#131615] text-sm sm:text-base font-bold tracking-wide rounded-full flex items-center justify-center"
+                  >
+                    <span class="truncate">Download on the App Store</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="flex justify-center px-4 sm:px-0">
+          <div class="w-full max-w-4xl flex flex-col text-center gap-6 py-10">
+            <div
+              class="flex flex-col sm:flex-row justify-center sm:justify-around items-center gap-4"
+            >
+              <a
+                href="https://feelbuddha.com/privacy-policy"
+                class="text-[#6c7f78] text-base"
+                >Privacy Policy</a
+              >
+            </div>
+            <p class="text-[#6c7f78] text-base">
+              © 2025 Feel Buddha. All rights reserved.
+            </p>
+          </div>
+        </footer>
+      </div>
     </div>
   </body>
 </html>
