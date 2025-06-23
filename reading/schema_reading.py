@@ -8,9 +8,11 @@ class ReadingResponse(BaseModel):
     created_at: datetime
     tradition: str
     input_text: str
+    figure_name: str
+    figure_story: str
     sutra_name: str
     sutra_excerpt: str
-    saint: str
+    explanation: str
     advice: str
     practice: str
 
