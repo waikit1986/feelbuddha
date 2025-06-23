@@ -45,7 +45,7 @@ async def getDeepSeekResponse(tradition: str, input_text: str, current_user: Use
     f"I am currently experiencing or exploring: '{input_text}' "
     f"Strictly within only the {tradition} Buddhist tradition. I seek a profound, non-generic connection—"
     "a story, teaching, or figure whose life or insight **directly mirrors or illuminates** my struggle. "
-    "Prioritize lesser-known but deeply meaningful examples over clichéd ones.\n\n"
+    "Prioritize all not only the well-known but also lesser-known but deeply meaningful examples over clichéd ones.\n\n"
     "**Requirements:**\n"
     "- Identify a Buddhist figure (arahant, bodhisattva, guru, etc.) whose story **resonates emotionally** with my situation.\n"
     "- Cite the **exact sutra, agama, or scripture** (include translator if available). If no direct text exists, use oral tradition.\n"
