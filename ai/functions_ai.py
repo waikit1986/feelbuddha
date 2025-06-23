@@ -23,9 +23,11 @@ def saveReading(tradition: str, input_text: str, response: AiResponse, total_tok
     reading = Reading(
         tradition=tradition,
         input_text=input_text,
+        figure_name=response.figure_name,
+        figure_story=response.figure_story,
         sutra_name=response.sutra_name,
         sutra_excerpt=response.sutra_excerpt,
-        saint=response.saint,
+        explanation=response.explanation,
         advice=response.advice,
         practice=response.practice,
         total_tokens=total_tokens,
@@ -40,21 +42,29 @@ def saveReading(tradition: str, input_text: str, response: AiResponse, total_tok
 async def getDeepSeekResponse(tradition: str, input_text: str, current_user: User, db: Session):
 
     prompt = (
-    f"I am currently experiencing or exploring: {input_text}. Please guide me with clear, direct wisdom from the {tradition} Buddhist tradition to help me understand and transform this situation. "
-    f"Do not give general spiritual advice—only draw from canonical {tradition} texts that speak specifically to this issue. "
+    f"I am currently experiencing or exploring: {input_text} "
+    f"within the {tradition} Buddhist tradition that relates to, reflects, or speaks to my situation. This could be about an "
+    "arahant, bodhisattva, guru, yogi, or renowned monk—someone whose life, struggle, or insight might "
+    "mirror or transform this experience. You may go beyond the most famous figures and include "
+    "lesser-known but meaningful examples.\n\n"
+    "If possible, identify the associated sutra, agama, scripture, koan, or oral tradition that features "
+    "this figure or moment, and include a direct excerpt. If no exact match exists, search across the "
+    "broader Buddhist canon to find the most resonant teaching.\n\n"
     "Reply in valid JSON format with the following keys only:\n\n"
-    "1. \"saint\": [A named Buddhist saint, arhat, or bodhisattva from a canonical {tradition} text, whose story relates to this issue.]\n"
-    "2. \"sutra_name\": [Exact name of the sutra, tantra, or text where this figure appears and which addresses the situation. Must be canonical.]\n"
-    "3. \"sutra_excerpt\": [Direct quote from the text related to the issue. Include English translation source if available.]\n"
-    "4. \"advice\": [Explain the quote clearly. Show how it applies to my situation. Then, tell the saint’s story from the text: what happened, what they realized, and how it relates to my struggle. Tone should be warm and wise, like a teacher.]\n"
-    "5. \"practice\": [A beginner-friendly daily {tradition} practice from this saint or sutra—such as a mantra, visualization, or reflection—directly aimed at this issue.]\n\n"
+    "1. \"figure_name\": [Name of the Buddhist figure whose story relates to this issue]\n"
+    "2. \"figure_story\": [A personal retelling of their relevant story, emphasizing emotional resonance to me]\n"
+    "3. \"sutra_name\": [Name of the text where this appears (or 'Oral Tradition' if not canonical)]\n"
+    "4. \"sutra_excerpt\": [Direct quote or summary of key teaching from the text, provide the source if available]\n"
+    "5. \"explanation\": [How this story specifically relates to my current situation]\n"
+    "6. \"advice\": [Personalized guidance drawn from this story, in a warm, teacher-like tone]\n"
+    "7. \"practice\": [A simple, actionable practice derived from this story]\n\n"
     "Requirements:\n"
-    "- The saint must be explicitly present in the cited sutra.\n"
-    "- The excerpt must clearly mention the emotion or issue.\n"
-    "- The practice must come from the sutra or saint, not improvised.\n"
-    "- Use first-person tone, as if a teacher or Buddha were speaking to me.\n\n"
+    "- The story should feel personally relevant to my experience\n"
+    "- Include source text when possible, but oral traditions are acceptable\n"
+    "- The practice should be genuinely derived from the tradition\n"
+    "- Use first-person tone in advice, as if speaking directly to me\n\n"
     "Output valid JSON only, with double quotes and no extra text."
-)
+    )
 
     print(prompt)
 
@@ -84,9 +94,11 @@ async def getDeepSeekResponse(tradition: str, input_text: str, current_user: Use
     )
 
     return AiResponse(
+        figure_name=parsed_output["figure_name"],
+        figure_story=parsed_output["figure_story"],
         sutra_name=parsed_output["sutra_name"],
         sutra_excerpt=parsed_output["sutra_excerpt"],
-        saint=parsed_output["saint"],
+        explanation=parsed_output["explanation"],
         advice=parsed_output["advice"],
         practice=parsed_output["practice"],
     )
