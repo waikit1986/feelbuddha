@@ -1,9 +1,8 @@
 from sqlalchemy.orm.session import Session
 from fastapi import HTTPException, status
 
-from user.functions_user import get_user_by_username
 from user.schema_user import UserBase
-from .schema_wall import WallDisplay
+from .schema_wall import WallResponse
 from .models_wall import Wall
 
 
@@ -16,18 +15,17 @@ def get_all_walls(db: Session):
             detail="No post in walls found."
         )
 
-    return [WallDisplay.model_validate(wall) for wall in walls]
+    return [WallResponse.model_validate(wall) for wall in walls]
 
 def post_wall(
     db: Session,
     current_user: UserBase,
     input_text: str
 ):
-    user = get_user_by_username(db, current_user.username)
     
     wall = Wall(
-        user_id=user.id,
-        username=user.username,
+        user_id=current_user.id,
+        username=current_user.username,
         input_text=input_text
     )
 
@@ -35,7 +33,7 @@ def post_wall(
     db.commit()
     db.refresh(wall)
 
-    return WallDisplay.model_validate(wall)
+    return WallResponse.model_validate(wall)
 
 def delete_wall(
     db: Session,

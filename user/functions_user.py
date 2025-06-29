@@ -1,59 +1,31 @@
-from uuid import UUID
-from sqlalchemy import func
-from sqlalchemy.orm.session import Session
-from fastapi import HTTPException, status
+from fastapi import Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
+from jose import jwt, JWTError
+from sqlalchemy.orm import Session
+import os
+from dotenv import load_dotenv
 
-from db.hash import Hash
-from .schema_user import UserBase
-from .models_user import User
+from db.database import get_db
+from user.models_user import User
 
+load_dotenv()
 
-def create_user(db: Session, request: UserBase):
-  if db.query(User).filter(User.username == request.username).first():
-    raise HTTPException(
-      status_code=status.HTTP_400_BAD_REQUEST,
-        detail="Username already used, please create a new one."
-    )
-    
-  if db.query(User).filter(User.email == request.email).first():
-    raise HTTPException(
-      status_code=status.HTTP_400_BAD_REQUEST,
-      detail="Email already exists. Please login instead."
-    )
+JWT_SECRET = os.getenv("JWT_SECRET")
+JWT_ALGORITHM = "HS256"
 
-  new_user = User(
-    username=request.username,
-    email=request.email,
-    password=Hash.bcrypt(request.password)
-  )
-  db.add(new_user)
-  db.commit()
-  db.refresh(new_user)
-  return new_user
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-def get_user_by_username(db: Session, username: str):
-  user = db.query(User).filter(User.username == username).first()
-  if not user:
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-      detail=f'User with username {username} not found')
-  return user
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
 
-def update_user(request_user: UserBase, db: Session, user: UserBase):
-  existing_user = db.query(User).filter(User.username == user.username).first()
-  if not existing_user:
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-      detail=f'User with username {user.username} not found')
-  existing_user.username = request_user.username
-  existing_user.email = request_user.email
-  existing_user.password = Hash.bcrypt(request_user.password)
-  db.commit()
-  return 'ok'
+        user = db.query(User).filter(User.id == user_id).first()
+        if user is None:
+            raise HTTPException(status_code=401, detail="User not found")
+        return user
 
-def delete_user(db: Session, username: str):
-  user = db.query(User).filter(User.username == username).first()
-  if not user:
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-      detail='User with username {username} not found')
-  db.delete(user)
-  db.commit()
-  return 'ok'
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")

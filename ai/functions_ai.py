@@ -1,4 +1,5 @@
 import json
+from uuid import UUID
 from fastapi import Depends
 from sqlalchemy.orm.session import Session
 from openai import AsyncOpenAI
@@ -8,7 +9,6 @@ from dotenv import load_dotenv
 from .schema_ai import AiResponse
 from reading.models_reading import Reading
 from user.models_user import User
-from user.functions_user import get_user_by_username
 
 
 load_dotenv()
@@ -18,7 +18,7 @@ client = AsyncOpenAI(
     base_url="https://api.deepseek.com"
 )
 
-def saveReading(tradition: str, input_text: str, response: AiResponse, total_tokens: int, user: User, db: Session):
+def saveReading(tradition: str, input_text: str, response: AiResponse, total_tokens: int, user_id: UUID, username: str, db: Session):
     reading = Reading(
         tradition=tradition,
         input_text=input_text,
@@ -30,8 +30,8 @@ def saveReading(tradition: str, input_text: str, response: AiResponse, total_tok
         advice=response.advice,
         practice=response.practice,
         total_tokens=total_tokens,
-        user_id=user.id,
-        username=user.username,
+        user_id=user_id,
+        username=username
     )
     db.add(reading)
     db.commit()
@@ -82,13 +82,13 @@ async def getDeepSeekResponse(tradition: str, input_text: str, current_user: Use
     parsed_output = json.loads(raw_output)
     print(parsed_output)
 
-    user = get_user_by_username(db, current_user.username)
     saveReading(
         tradition=tradition,
         input_text=input_text,
         response=AiResponse(**parsed_output),
         total_tokens=response.usage.total_tokens,
-        user=user,
+        user_id=current_user.id,
+        username=current_user.username,
         db=db
     )
 

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from db.database import get_db
 from . import functions_ai
 from .schema_ai import AiResponse, AiRequest
-from auth.oauth2 import get_current_user
+from user.functions_user import get_current_user
 from user.schema_user import UserBase
 
 

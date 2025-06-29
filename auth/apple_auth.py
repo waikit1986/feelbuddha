@@ -1,138 +1,136 @@
-import os
-import time
-import logging
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
-from jose import jwt, jwk, JWTError
-from jose.utils import base64url_decode
+from datetime import datetime, timezone
+from typing import Optional
+from jose import jwt, jwk
 import httpx
+import hashlib
+import os
 from dotenv import load_dotenv
+import json
+from sqlalchemy.orm import Session
+
+from db.database import get_db
+from user.models_user import User
+from . tokens import create_access_token
 
 load_dotenv()
 
-logger = logging.getLogger(__name__)
-router = APIRouter(tags=["Auth"])
+router = APIRouter(
+    prefix="/apple",
+    tags=["Apple Authentication"]
+)
 
-APPLE_KEYS_URL = "https://appleid.apple.com/auth/keys"
-APPLE_TOKEN_URL = "https://appleid.apple.com/auth/token"
+APPLE_CLIENT_ID = os.getenv("APPLE_CLIENT_ID")
 
 class AppleAuthRequest(BaseModel):
-    code: str
     id_token: str
+    nonce: str
+    user_identifier: str
+    email: Optional[str] = None
+    full_name: Optional[str] = None
 
-def generate_apple_client_secret():
-    try:
-        headers = {
-            "kid": os.getenv("APPLE_KEY_ID"),
-            "alg": "ES256"
-        }
-
-        with open(os.getenv("APPLE_PRIVATE_KEY_PATH")) as f:
-            private_key = f.read()
-
-        claims = {
-            "iss": os.getenv("APPLE_TEAM_ID"),
-            "iat": int(time.time()),
-            "exp": int(time.time()) + 86400 * 180,
-            "aud": "https://appleid.apple.com",
-            "sub": os.getenv("APPLE_CLIENT_ID")
-        }
-
-        return jwt.encode(
-            payload=claims,
-            key=private_key,
-            algorithm="ES256",
-            headers=headers
-        )
-    except Exception as e:
-        logger.error(f"Failed to generate client secret: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error generating Apple client secret")
-
-async def exchange_code_for_token(code: str):
-    data = {
-        "client_id": os.getenv("APPLE_CLIENT_ID"),
-        "client_secret": generate_apple_client_secret(),
-        "code": code,
-        "grant_type": "authorization_code",
-    }
-
+async def get_apple_public_key(kid: str) -> Optional[dict]:
     async with httpx.AsyncClient() as client:
-        response = await client.post(APPLE_TOKEN_URL, data=data)
-        if response.status_code != 200:
-            logger.error(f"Apple token exchange failed: {response.text}")
-            raise HTTPException(status_code=400, detail=f"Apple token exchange error: {response.text}")
-        return response.json()
+        response = await client.get("https://appleid.apple.com/auth/keys")
+        keys = response.json().get("keys", [])
+        return next((k for k in keys if k["kid"] == kid), None)
 
-async def verify_identity_token(id_token: str):
+async def verify_apple_token(id_token: str, nonce: str) -> dict:
     try:
-        async with httpx.AsyncClient() as client:
-            keys = (await client.get(APPLE_KEYS_URL)).json()["keys"]
+        print(f"Verifying Apple ID token, nonce: {nonce}")
+        header = jwt.get_unverified_header(id_token)
+        kid = header.get("kid")
+        print(f"Apple token key ID: {kid}")
 
-        headers = jwt.get_unverified_header(id_token)
-        key = next((k for k in keys if k["kid"] == headers["kid"]), None)
-        if not key:
-            logger.error("Apple public key not found")
-            raise HTTPException(status_code=400, detail="Apple public key not found")
+        public_key_data = await get_apple_public_key(kid)
+        if not public_key_data:
+            raise HTTPException(400, detail="Apple public key not found")
 
-        public_key = jwk.construct(key)
-        message, encoded_signature = id_token.rsplit('.', 1)
-        decoded_signature = base64url_decode(encoded_signature.encode())
+        public_key = jwk.construct(public_key_data)
 
-        if not public_key.verify(message.encode(), decoded_signature):
-            logger.error("Invalid Apple identity token signature")
-            raise HTTPException(status_code=400, detail="Invalid Apple identity token signature")
-
-        claims = jwt.decode(
+        decoded = jwt.decode(
             id_token,
-            key=public_key.to_pem(),
+            key=public_key,
             algorithms=["RS256"],
-            audience=os.getenv("APPLE_CLIENT_ID")
+            audience=APPLE_CLIENT_ID,
+            issuer="https://appleid.apple.com",
+            options={"verify_nonce": False}
         )
 
-        return claims
+        print(f"Decoded Apple ID token:\n{json.dumps(decoded, indent=2)}")
 
-    except JWTError as e:
-        logger.error(f"JWT decode failed: {e}")
-        raise HTTPException(status_code=400, detail=f"Invalid identity token: {str(e)}")
+        expected_nonce_hash = hashlib.sha256(nonce.encode()).hexdigest()
+        token_nonce = decoded.get("nonce")
+        print(f"Token nonce: {token_nonce}")
+        print(f"Expected SHA256 nonce hash: {expected_nonce_hash}")
+
+        if not token_nonce or token_nonce.lower() != expected_nonce_hash.lower():
+            raise HTTPException(400, detail=f"Nonce mismatch!\nReceived: {token_nonce}\nExpected: {expected_nonce_hash}")
+
+        return decoded
+
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(400, detail="Apple ID token has expired")
+    except jwt.JWTError as e:
+        raise HTTPException(400, detail=f"Invalid Apple ID token: {e}")
     except Exception as e:
-        logger.error(f"verify_identity_token failed: {e}")
-        raise HTTPException(status_code=400, detail=f"Apple identity token verification error: {str(e)}")
+        raise HTTPException(400, detail=f"Apple token verification failed: {e}")
 
-@router.post("/auth/apple")
-async def apple_auth(payload: AppleAuthRequest):
+@router.post("/login")
+async def auth_apple(request: AppleAuthRequest, db: Session = Depends(get_db)):
     try:
-        claims = await verify_identity_token(payload.id_token)
-    except HTTPException as ve:
-        # Already handled
-        raise ve
-    except Exception as e:
-        logger.exception("Unhandled error during token verification")
-        raise HTTPException(status_code=400, detail="Unhandled error during identity token verification")
+        decoded = await verify_apple_token(request.id_token, request.nonce)
+        apple_sub = decoded["sub"]
+        now = datetime.now(timezone.utc)
 
-    try:
-        token_data = await exchange_code_for_token(payload.code)
-    except HTTPException as ve:
-        # Already handled
-        raise ve
-    except Exception as e:
-        logger.exception("Unhandled error during token exchange")
-        raise HTTPException(status_code=400, detail="Unhandled error during token exchange")
+        user = db.query(User).filter(User.apple_sub == apple_sub).first()
 
-    try:
-        user_id = claims["sub"]
-        email = claims.get("email")
-        email_verified = claims.get("email_verified")
+        if user:
+            print("Found existing user with Apple sub:", apple_sub)
+            user.last_login = now
+
+            updated_email = decoded.get("email") or request.email
+            if updated_email and updated_email != user.email:
+                user.email = updated_email
+
+            verified_flag = decoded.get("email_verified", user.email_verified)
+            if verified_flag != user.email_verified:
+                user.email_verified = verified_flag
+
+            if not user.full_name and request.full_name:
+                user.full_name = request.full_name
+                
+            access_token = create_access_token(data={"sub": str(user.id)})
+
+            print("Updated user:", user)
+
+        else:
+            user = User(
+                apple_sub=apple_sub,
+                full_name=request.full_name or None,
+                email=decoded.get("email", request.email),
+                email_verified=decoded.get("email_verified", False),
+                created_at=now,
+                last_login=now
+            )
+            print("Creating new user with Apple sub:", apple_sub)
+            db.add(user)
+            
+            access_token = create_access_token(data={"sub": str(user.id)})
+
+        db.commit()
+        db.refresh(user)
 
         return {
             "status": "success",
-            "user": {
-                "apple_id": user_id,
-                "email": email,
-                "email_verified": email_verified
-            },
-            "tokens": token_data
+            "user_id": str(user.id),
+            "email": user.email,
+            "is_verified": user.email_verified,
+            "username": user.username,
+            "access_token": access_token
         }
 
-    except Exception as e:
-        logger.exception("Failed to construct response")
-        raise HTTPException(status_code=500, detail="Internal server error preparing user data")
+    except HTTPException as e:
+        print(f"Apple Auth Error: {e.detail}")
+        raise e

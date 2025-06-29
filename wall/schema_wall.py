@@ -6,7 +6,7 @@ from uuid import UUID
 class WallBase(BaseModel):
     input_text: str
         
-class WallDisplay(BaseModel):
+class WallResponse(BaseModel):
     id: UUID
     created_at: datetime
     username: str

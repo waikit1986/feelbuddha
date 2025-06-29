@@ -5,8 +5,8 @@ from fastapi.templating import Jinja2Templates
 
 from db.database import engine
 from user import models_user
-from user.router_user import router as UserRouter
-from auth.authentication import router as AuthenticationRouter
+# from user.router_user import router as UserRouter
+# from auth.authentication import router as AuthenticationRouter
 from ai.router_ai import router as AiRouter
 from reading.router_reading import router as ReadingRouter
 from wall.router_wall import router as WallRouter
@@ -19,8 +19,8 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-app.include_router(UserRouter, prefix="/api")
-app.include_router(AuthenticationRouter, prefix="/api")
+# app.include_router(UserRouter, prefix="/api")
+# app.include_router(AuthenticationRouter, prefix="/api")
 app.include_router(AiRouter, prefix="/api")
 app.include_router(ReadingRouter, prefix="/api")
 app.include_router(WallRouter, prefix="/api")

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from db.database import get_db
 from user.schema_user import UserBase
 from . import functions_reading
-from auth.oauth2 import get_current_user
+from user.functions_user import get_current_user
 from reading.schema_reading import ReadingResponse
 
 

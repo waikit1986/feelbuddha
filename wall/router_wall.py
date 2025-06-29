@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 from db.database import get_db
 from user.schema_user import UserBase
 from . import functions_wall
-from auth.oauth2 import get_current_user
-from wall.schema_wall import WallBase, WallDelete, WallDisplay
+from user.functions_user import get_current_user
+from wall.schema_wall import WallBase, WallDelete, WallResponse
 
 
 router = APIRouter(
@@ -14,13 +14,13 @@ router = APIRouter(
     tags=['Wall'],
 )
 
-@router.get('', response_model=List[WallDisplay])
+@router.get('', response_model=List[WallResponse])
 def get_all_wall(
     db: Session = Depends(get_db),
 ):
     return functions_wall.get_all_walls(db=db)
 
-@router.post('', response_model=WallDisplay)
+@router.post('', response_model=WallResponse)
 def post_wall(
     payload: WallBase,
     db: Session = Depends(get_db),
