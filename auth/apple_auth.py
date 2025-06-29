@@ -101,7 +101,7 @@ async def auth_apple(request: AppleAuthRequest, db: Session = Depends(get_db)):
             if not user.full_name and request.full_name:
                 user.full_name = request.full_name
                 
-            access_token = create_access_token(data={"sub": str(user.id)})
+            access_token = create_access_token(user=user)
 
             print("Updated user:", user)
 
@@ -116,8 +116,8 @@ async def auth_apple(request: AppleAuthRequest, db: Session = Depends(get_db)):
             )
             print("Creating new user with Apple sub:", apple_sub)
             db.add(user)
-            
-            access_token = create_access_token(data={"sub": str(user.id)})
+
+            access_token = create_access_token(user=user)
 
         db.commit()
         db.refresh(user)
@@ -128,7 +128,7 @@ async def auth_apple(request: AppleAuthRequest, db: Session = Depends(get_db)):
             "email": user.email,
             "is_verified": user.email_verified,
             "username": user.username,
-            "access_token": access_token
+            "access_token": access_token,
         }
 
     except HTTPException as e:
